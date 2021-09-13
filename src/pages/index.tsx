@@ -3,6 +3,7 @@
 import Prismic from '@prismicio/client';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
+import { useRouter } from 'next/router';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -28,14 +29,26 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
+  const route = useRouter();
+
+  function pushToPost(url: string) {
+    route.push(`/post/${url}`);
+  }
+
   return (
     <>
       {postsPagination.results.map(post => (
         <div key={post.uid}>
-          <h1>{post.data.title}</h1>
+          <button type="button" onClick={() => pushToPost(post.uid)}>
+            {post.data.title}
+          </button>
           <p>{post.data.subtitle}</p>
           <footer>
-            <time>{post.first_publication_date}</time>
+            <time>
+              {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
+                locale: ptBR,
+              })}
+            </time>
             <p>{post.data.author}</p>
           </footer>
         </div>
@@ -57,13 +70,7 @@ export const getStaticProps = async () => {
   const posts = postsResponse.results.map(postResponse => {
     return {
       uid: postResponse.uid,
-      first_publication_date: format(
-        new Date(postResponse.first_publication_date),
-        'dd MMM yyyy',
-        {
-          locale: ptBR,
-        }
-      ),
+      first_publication_date: postResponse.first_publication_date,
       data: {
         title: postResponse.data.title[0].text,
         subtitle: postResponse.data.subtitle[0].text,
