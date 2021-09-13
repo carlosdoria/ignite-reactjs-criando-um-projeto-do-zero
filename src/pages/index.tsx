@@ -28,9 +28,22 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
-  console.log(postsPagination);
+  return (
+    <>
+      {postsPagination.results.map(post => (
+        <div key={post.uid}>
+          <h1>{post.data.title}</h1>
+          <p>{post.data.subtitle}</p>
+          <footer>
+            <time>{post.first_publication_date}</time>
+            <p>{post.data.author}</p>
+          </footer>
+        </div>
+      ))}
 
-  return <h1>oi</h1>;
+      <button type="button">Carregar mais posts</button>
+    </>
+  );
 }
 
 export const getStaticProps = async () => {
@@ -62,8 +75,10 @@ export const getStaticProps = async () => {
 
   return {
     props: {
-      results: posts,
-      next_page: '',
+      postsPagination: {
+        results: posts,
+        next_page: '',
+      },
     },
   };
 };
