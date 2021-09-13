@@ -41,7 +41,9 @@ export default function Home({ postsPagination }: HomeProps) {
         </div>
       ))}
 
-      <button type="button">Carregar mais posts</button>
+      {postsPagination.next_page && (
+        <button type="button">Carregar mais posts</button>
+      )}
     </>
   );
 }
@@ -77,7 +79,7 @@ export const getStaticProps = async () => {
     props: {
       postsPagination: {
         results: posts,
-        next_page: '',
+        next_page: 'link',
       },
     },
   };
