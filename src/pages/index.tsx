@@ -1,9 +1,9 @@
-// import { GetStaticProps } from 'next';
-
+import { GetStaticProps } from 'next';
 import Prismic from '@prismicio/client';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -29,19 +29,14 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
-  const route = useRouter();
-
-  function pushToPost(url: string) {
-    route.push(`/post/${url}`);
-  }
+  const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [next_page, setNextPage] = useState(postsPagination.next_page);
 
   return (
     <>
-      {postsPagination.results.map(post => (
+      {posts.map(post => (
         <div key={post.uid}>
-          <button type="button" onClick={() => pushToPost(post.uid)}>
-            {post.data.title}
-          </button>
+          <Link href={`post/${post.uid}`}>{post.data.title}</Link>
           <p>{post.data.subtitle}</p>
           <footer>
             <time>
@@ -54,14 +49,12 @@ export default function Home({ postsPagination }: HomeProps) {
         </div>
       ))}
 
-      {postsPagination.next_page && (
-        <button type="button">Carregar mais posts</button>
-      )}
+      {next_page && <button type="button">Carregar mais posts</button>}
     </>
   );
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query([
     Prismic.predicates.at('document.type', 'posts'),
@@ -72,21 +65,21 @@ export const getStaticProps = async () => {
       uid: postResponse.uid,
       first_publication_date: postResponse.first_publication_date,
       data: {
-        title: postResponse.data.title[0].text,
-        subtitle: postResponse.data.subtitle[0].text,
-        author: postResponse.data.author[0].text,
+        title: postResponse.data.title,
+        subtitle: postResponse.data.subtitle,
+        author: postResponse.data.author,
       },
     };
   });
 
   // eslint-disable-next-line no-console
-  // console.log(posts);
+  console.log(postsResponse.results[0].data);
 
   return {
     props: {
       postsPagination: {
         results: posts,
-        next_page: 'link',
+        next_page: postsResponse.next_page ? postsResponse.next_page : '',
       },
     },
   };
