@@ -1,1 +1,38 @@
-// TODO
+.post {
+  display: block;
+  & + a {
+    margin-top: 3rem;
+  }
+  h2{
+    margin-bottom: .5rem;
+    font-size: 1.75rem;
+    line-height: 2.125rem;
+    font-weight: 700;
+    color: var(--heading);
+  }
+  p {
+    margin-bottom: 1.5rem;
+    font-size: 1.125rem;
+    line-height: 1.375rem;
+    font-weight: 400;
+    color: var(--body);
+  }
+  footer {
+    display: flex;
+    flex-direction: row;
+    span {
+      display: flex;
+      align-items: center;
+    }
+
+    time, small{
+      margin-left: .5rem;
+      font-size: .875rem;
+      line-height: 1.065rem;
+      color: var(--info);
+    }
+    time {
+      margin-right: 1.5rem;
+    }
+  }
+}
