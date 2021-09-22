@@ -3,11 +3,11 @@
 /* eslint-disable no-param-reassign */
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
 import { BiCalendarAlt, BiUser, BiTimeFive } from 'react-icons/bi';
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
@@ -57,18 +57,12 @@ export default function Post({ post }: PostProps) {
           <Head>
             <title>{post.data.title} | spacetraveling</title>
           </Head>
-          <main className={commonStyles.container}>
-            <Image
-              src={data.banner.url}
-              alt="banner"
-              width={1440}
-              height={400}
-            />
-            {/* <img src={data.banner.url} alt="banner" /> */}
+          <main>
+            <img src={data.banner.url} alt="banner" className={styles.image} />
             <div className={commonStyles.content}>
-              <header className={styles.post}>
+              <header className={styles.postHeader}>
                 <h1>{data.title}</h1>
-                <div>
+                <div className={styles.postInfo}>
                   <span>
                     <BiCalendarAlt />
                     <time>
@@ -88,12 +82,19 @@ export default function Post({ post }: PostProps) {
                 </div>
               </header>
 
-              <div>
+              <div className={styles.postBody}>
                 {data.content.map((content, contentIndex) => (
-                  <div key={contentIndex}>
+                  <div key={contentIndex} className={styles.postBodyContent}>
                     <h2>{content.heading}</h2>
-                    {content.body.map((paragraph, paragraphIndex) => (
-                      <p key={paragraphIndex}>{paragraph.text}</p>
+                    {/* <div
+                      className={styles.text}
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{
+                        __html: RichText.asHtml(content.body),
+                      }}
+                    /> */}
+                    {content.body.map((paragraph, index) => (
+                      <p key={index}>{paragraph.text}</p>
                     ))}
                   </div>
                 ))}
