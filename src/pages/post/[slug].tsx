@@ -7,11 +7,11 @@ import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import Prismic from '@prismicio/client';
-import { RichText } from 'prismic-dom';
 import { BiCalendarAlt, BiUser, BiTimeFive } from 'react-icons/bi';
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import Comments from '../../components/Comments';
 
 interface Post {
   uid: string;
@@ -100,6 +100,8 @@ export default function Post({ post }: PostProps) {
                 ))}
               </div>
             </div>
+
+            <Comments />
           </main>
         </>
       )}
