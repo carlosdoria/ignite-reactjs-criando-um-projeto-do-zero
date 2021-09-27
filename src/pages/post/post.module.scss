@@ -59,6 +59,7 @@
     line-height: 140%;
     color: var(--body);
     text-align: justify;
+    word-wrap: break-word;
 
     & + p {
       margin-top: 2rem;
