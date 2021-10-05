@@ -66,3 +66,18 @@
     }
   }
 }
+
+.info {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    color: var(--info);
+  }
+}

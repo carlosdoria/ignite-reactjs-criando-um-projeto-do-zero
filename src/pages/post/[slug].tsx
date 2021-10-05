@@ -16,6 +16,7 @@ import Comments from '../../components/Comments';
 interface Post {
   uid: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     subtitle: string;
@@ -39,7 +40,9 @@ interface PostProps {
 export default function Post({ post }: PostProps) {
   const { isFallback } = useRouter();
 
-  const { data, first_publication_date } = post;
+  const { data, first_publication_date, last_publication_date } = post;
+
+  const isPostEdited = first_publication_date !== last_publication_date;
 
   const totalWords = post.data.content.reduce((accumulator, content) => {
     accumulator += content.heading.split(' ').length;
@@ -48,6 +51,7 @@ export default function Post({ post }: PostProps) {
     return accumulator;
   }, 0);
   const readTime = Math.ceil(totalWords / 200);
+
   return (
     <>
       {isFallback ? (
@@ -80,6 +84,23 @@ export default function Post({ post }: PostProps) {
                     <small>{readTime} min</small>
                   </span>
                 </div>
+                {isPostEdited && (
+                  <div className={styles.info}>
+                    <span>
+                      <small>
+                        <time>
+                          {format(
+                            new Date(post.last_publication_date),
+                            "'* editado em' dd MMM yyyy', às 'HH':'mm",
+                            {
+                              locale: ptBR,
+                            }
+                          )}
+                        </time>
+                      </small>
+                    </span>
+                  </div>
+                )}
               </header>
 
               <div className={styles.postBody}>
@@ -132,11 +153,14 @@ export const getStaticProps: GetStaticProps = async context => {
   const { params } = context;
 
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(params.slug), {});
+  const response = await prismic.getByUID('posts', String(params.slug), {
+    orderings: '[document.last_publication_date desc]',
+  });
 
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
