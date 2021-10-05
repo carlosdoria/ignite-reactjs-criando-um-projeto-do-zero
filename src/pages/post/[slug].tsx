@@ -3,6 +3,7 @@
 /* eslint-disable no-param-reassign */
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
@@ -35,9 +36,23 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  navigation: {
+    prevPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+    nextPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+  };
 }
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post, navigation }: PostProps) {
   const { isFallback } = useRouter();
 
   const { data, first_publication_date, last_publication_date } = post;
@@ -120,6 +135,26 @@ export default function Post({ post }: PostProps) {
                   </div>
                 ))}
               </div>
+
+              <section className={styles.postsNavigation}>
+                {navigation.prevPost.length > 0 && (
+                  <div>
+                    <h3>{navigation.prevPost[0].data.title}</h3>
+                    <Link href={`/post/${navigation.prevPost[0].uid}`}>
+                      <a>Post anterior</a>
+                    </Link>
+                  </div>
+                )}
+
+                {navigation.nextPost.length > 0 && (
+                  <div>
+                    <h3>{navigation.nextPost[0].data.title}</h3>
+                    <Link href={`/post/${navigation.nextPost[0].uid}`}>
+                      <a>Próximo post</a>
+                    </Link>
+                  </div>
+                )}
+              </section>
             </div>
 
             <Comments />
@@ -157,6 +192,24 @@ export const getStaticProps: GetStaticProps = async context => {
     orderings: '[document.last_publication_date desc]',
   });
 
+  const prevPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.last_publication_date desc]',
+    }
+  );
+
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
@@ -178,6 +231,10 @@ export const getStaticProps: GetStaticProps = async context => {
   return {
     props: {
       post,
+      navigation: {
+        prevPost: prevPost?.results,
+        nextPost: nextPost?.results,
+      },
     },
   };
 };
